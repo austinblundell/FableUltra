@@ -20,6 +20,7 @@
 //                   .update(dt, focus:Vector3, immediate?:boolean,
 //                           ctx?: {playerPos, actionPoint})
 //                   .cycleMode():string .reset()
+//                   .mapMoveToCourt(moveX, moveZ, out:{x,z})
 //   hud.js        export class HUD()
 //                   .onStart = ({quarterMinutes, difficulty}) => {}
 //                   .update(snapshot) .showMessage(text, seconds, accent?)
@@ -87,6 +88,7 @@ hud.onStart = (options) => {
   game = new Game({ scene, arena, ball, audio, hud, options });
   cameraRig.reset();
   cameraRig.update(0, game.cameraFocus(), true);
+  window.__game = game;   // debug/testing handle
 };
 
 window.addEventListener('resize', () => {
@@ -124,6 +126,11 @@ function adaptResolution(dt) {
   }
 }
 
+// Input handed to the sim: controls.state with the move axes remapped from
+// screen space to court space for the active camera view (W = up-screen).
+const gameInput = {};
+const _mv = { x: 0, z: 0 };
+
 // Edge-triggered flags must only reach the sim once per rendered frame.
 const heldOnlyState = {};
 function stripEdges(state) {
@@ -151,8 +158,12 @@ function frame() {
 
   let excitement = 0.25;
   if (game && !paused) {
+    Object.assign(gameInput, controls.state);
+    cameraRig.mapMoveToCourt(gameInput.moveX, gameInput.moveZ, _mv);
+    gameInput.moveX = _mv.x;
+    gameInput.moveZ = _mv.z;
     for (let i = 0; i < SIM_STEPS; i++) {
-      game.update(dt, i === 0 ? controls.state : stripEdges(controls.state));
+      game.update(dt, i === 0 ? gameInput : stripEdges(gameInput));
       ball.update(dt);
     }
     const snap = game.snapshot();

@@ -31,6 +31,7 @@ function smoothstep(edge0, edge1, x) {
 const _desiredPos = new THREE.Vector3();
 const _desiredTarget = new THREE.Vector3();
 const _back = new THREE.Vector3();
+const _fwd = new THREE.Vector3();
 
 const MODES = ['BROADCAST', 'PLAYER', 'RIM', 'SKY'];
 
@@ -56,6 +57,27 @@ export class CameraRig {
   }
 
   reset() { this.modeIndex = 0; }
+
+  // Map screen-space input (moveX = right on screen, moveZ = +1 toward the
+  // viewer / -1 up-screen) to court-space using the camera's current yaw, so
+  // W always moves the player "up the screen" no matter the active view.
+  // Writes {x, z} into out and returns it. Magnitude is preserved.
+  mapMoveToCourt(moveX, moveZ, out) {
+    out.x = moveX;
+    out.z = moveZ;
+    const cam = this.camera;
+    if (!cam || (moveX === 0 && moveZ === 0)) return out;
+    cam.getWorldDirection(_fwd);
+    _fwd.y = 0;
+    if (_fwd.lengthSq() < 1e-6) return out;   // looking straight down: keep raw
+    _fwd.normalize();
+    // screen-right = forward x up
+    const rx = -_fwd.z;
+    const rz = _fwd.x;
+    out.x = rx * moveX + _fwd.x * -moveZ;
+    out.z = rz * moveX + _fwd.z * -moveZ;
+    return out;
+  }
 
   update(dt, focus, immediate = false, ctx = null) {
     const camera = this.camera;
