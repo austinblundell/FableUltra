@@ -17,7 +17,9 @@
 //                   .update(dt, input) .snapshot() .cameraFocus():Vector3
 //                   .over:boolean .dispose()
 //   cameraRig.js  export class CameraRig(camera)
-//                   .update(dt, focus:Vector3, immediate?:boolean)
+//                   .update(dt, focus:Vector3, immediate?:boolean,
+//                           ctx?: {playerPos, actionPoint})
+//                   .cycleMode():string .reset()
 //   hud.js        export class HUD()
 //                   .onStart = ({quarterMinutes, difficulty}) => {}
 //                   .update(snapshot) .showMessage(text, seconds, accent?)
@@ -29,7 +31,7 @@
 //   controls.js   export class Controls(target)
 //                   .update() .state {moveX, moveZ, sprint, shootHeld,
 //                     shootPressed, shootReleased, passPressed, stealPressed,
-//                     switchPressed, pausePressed, anyPressed}
+//                     switchPressed, cameraPressed, pausePressed, anyPressed}
 // ============================================================================
 
 import * as THREE from 'three';
@@ -83,6 +85,7 @@ hud.onStart = (options) => {
   if (game) game.dispose();
   paused = false;
   game = new Game({ scene, arena, ball, audio, hud, options });
+  cameraRig.reset();
   cameraRig.update(0, game.cameraFocus(), true);
 };
 
@@ -142,6 +145,10 @@ function frame() {
     hud.setPaused(paused);
   }
 
+  if (controls.state.cameraPressed && game && !paused) {
+    hud.showMessage('CAMERA: ' + cameraRig.cycleMode(), 1.1);
+  }
+
   let excitement = 0.25;
   if (game && !paused) {
     for (let i = 0; i < SIM_STEPS; i++) {
@@ -160,7 +167,7 @@ function frame() {
         quarter: snap.quarter, clock: snap.clockText,
       });
     }
-    cameraRig.update(dt, game.cameraFocus());
+    cameraRig.update(dt, game.cameraFocus(), false, game.cameraContext());
   } else if (!game) {
     // Idle attract mode behind the start menu: slow orbit around the court.
     const t = clock.elapsedTime * 0.08;

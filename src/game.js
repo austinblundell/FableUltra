@@ -500,6 +500,22 @@ export class Game {
     return this._focus;
   }
 
+  // Extra framing info for the non-broadcast camera views: where the user's
+  // player stands and which basket the current possession attacks.
+  cameraContext() {
+    const c = this._camCtx || (this._camCtx = {
+      playerPos: new THREE.Vector3(),
+      actionPoint: new THREE.Vector3(COURT.HOOP_X, COURT.RIM_HEIGHT, 0),
+    });
+    const p = this.controlled && this.controlled.pos;
+    if (p && Number.isFinite(p.x) && Number.isFinite(p.z)) {
+      c.playerPos.set(p.x, 0, p.z);
+    }
+    const rim = this.attackRim(this.possession);
+    if (rim && Number.isFinite(rim.x)) c.actionPoint.copy(rim);
+    return c;
+  }
+
   dispose() {
     for (let i = 0; i < this.entities.length; i++) {
       const e = this.entities[i];

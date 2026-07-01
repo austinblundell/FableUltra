@@ -5,9 +5,9 @@
 //        each frame: controls.update(); then read controls.state.
 //
 // Edge flags (shootPressed, shootReleased, passPressed, stealPressed,
-// switchPressed, pausePressed, anyPressed) are true for exactly ONE update()
-// cycle. Down/up events are buffered in Sets between updates so a quick tap
-// that begins and ends between two frames is never lost.
+// switchPressed, cameraPressed, pausePressed, anyPressed) are true for exactly
+// ONE update() cycle. Down/up events are buffered in Sets between updates so a
+// quick tap that begins and ends between two frames is never lost.
 // ============================================================================
 
 // codes whose default browser behavior must be suppressed (scroll, tab focus)
@@ -23,7 +23,7 @@ export class Controls {
       sprint: false,
       shootHeld: false, shootPressed: false, shootReleased: false,
       passPressed: false, stealPressed: false,
-      switchPressed: false, pausePressed: false,
+      switchPressed: false, cameraPressed: false, pausePressed: false,
       anyPressed: false,
     };
 
@@ -54,7 +54,7 @@ export class Controls {
       s.sprint = false;
       s.shootHeld = false; s.shootPressed = false; s.shootReleased = false;
       s.passPressed = false; s.stealPressed = false;
-      s.switchPressed = false; s.pausePressed = false;
+      s.switchPressed = false; s.cameraPressed = false; s.pausePressed = false;
       s.anyPressed = false;
     };
 
@@ -93,7 +93,8 @@ export class Controls {
     // --- action edges ---------------------------------------------------------
     s.passPressed = pressed.has('KeyE') || pressed.has('Enter');
     s.stealPressed = pressed.has('KeyQ');
-    s.switchPressed = pressed.has('Tab') || pressed.has('KeyC');
+    s.switchPressed = pressed.has('Tab');
+    s.cameraPressed = pressed.has('KeyC');
     s.pausePressed = pressed.has('Escape') || pressed.has('KeyP');
 
     s.anyPressed = pressed.size > 0;

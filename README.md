@@ -43,7 +43,8 @@ via `file://` won't work — ES modules require HTTP.)
 | Shoot (hold & release) / Block on defense | `Space` |
 | Pass | `E` / `Enter` |
 | Steal | `Q` |
-| Switch defender | `Tab` / `C` |
+| Switch defender | `Tab` |
+| Camera view (broadcast / player / rim / sky) | `C` |
 | Pause | `Esc` / `P` |
 
 Arcade rules: no fouls, no free throws — everything else plays straight basketball.

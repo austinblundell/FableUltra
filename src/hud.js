@@ -437,6 +437,7 @@ export class HUD {
       ['E', 'Pass'],
       ['Q', 'Steal'],
       ['TAB', 'Switch player'],
+      ['C', 'Camera view'],
       ['ESC', 'Pause'],
     ];
     for (const [key, act] of controls) {
